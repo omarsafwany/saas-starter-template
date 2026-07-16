@@ -1,7 +1,7 @@
 generator client {
   provider     = "prisma-client"
   output       = "../src/generated/prisma"
-  moduleFormat = "cjs"
+  moduleFormat = "esm"
 }
 
 datasource db {
@@ -18,10 +18,12 @@ model User {
   email         String   @unique
   emailVerified Boolean  @default(false)
   image         String?
+  role          String   @default("user")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   sessions Session[]
+  accounts Account[]
   items    Item[]
 }
 
@@ -38,6 +40,39 @@ model Session {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Stores both OAuth-linked accounts (Google/GitHub) and, for the
+// "credential" providerId, the hashed password for email/password users.
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Short-lived tokens for email verification and password reset.
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
 }
 
 // Reference domain model — copy this shape when adding a new table.
