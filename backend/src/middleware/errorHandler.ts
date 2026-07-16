@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import { AppError } from "../utils/AppError";
-import { env } from "../config/env";
+import { AppError } from "../utils/AppError.js";
+import { env } from "../config/env.js";
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {
   const isAppError = err instanceof AppError;
