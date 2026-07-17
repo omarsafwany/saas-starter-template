@@ -23,6 +23,7 @@ const envSchema = z.object({
   // sendResetPassword/sendVerificationEmail callbacks fall back to
   // console.log so auth flows still work end-to-end in dev.
   RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
 
   // Observability (PERPRO-12) — optional. Without it, Sentry/Better Stack
   // reporting no-ops locally.

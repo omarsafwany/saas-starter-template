@@ -4,6 +4,7 @@ import { bearer } from "better-auth/plugins";
 
 import { prisma } from "./db.js";
 import { env } from "./env.js";
+import { sendEmail } from "../services/email.js";
 
 // Only register a social provider once BOTH its id and secret are set, so
 // the app boots fine in dev with no OAuth configured at all (see PERPRO-7 —
@@ -40,22 +41,45 @@ export const auth = betterAuth({
     // user clicks a verification link so the flow isn't blocked in dev.
     requireEmailVerification: false,
     sendResetPassword: async ({ user, url }) => {
-      // TODO(PERPRO-8): swap for services/email.ts sendEmail(...) once the
-      // Resend wrapper lands.
-      console.log(`[auth] password reset link for ${user.email}: ${url}`);
+      await sendEmail({
+        to: user.email,
+        template: "reset-password",
+        data: { url, name: user.name ?? undefined },
+      });
     },
   },
 
   emailVerification: {
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
-      // TODO(PERPRO-8): swap for services/email.ts sendEmail(...) once the
-      // Resend wrapper lands.
-      console.log(`[auth] verification link for ${user.email}: ${url}`);
+      await sendEmail({
+        to: user.email,
+        template: "verify-email",
+        data: { url, name: user.name ?? undefined },
+      });
     },
   },
 
   socialProviders,
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // Best-effort: a welcome email failing to send should never break
+          // signup, so this is intentionally swallowed (and logged).
+          try {
+            await sendEmail({
+              to: user.email,
+              template: "welcome",
+              data: { name: user.name ?? undefined, loginUrl: env.FRONTEND_URL },
+            });
+          } catch (err) {
+            console.error("[auth] failed to send welcome email:", err);
+          }
+        },
+      },
+    },
+  },
 
   // Plain string role column (PERPRO-7 scope), default "user". Declared as
   // an additional field so Better Auth returns/accepts it on the session
