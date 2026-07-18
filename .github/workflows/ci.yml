@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: [main]
@@ -6,9 +7,93 @@ on:
     branches: [main]
 
 jobs:
-  placeholder:
+  backend:
+    name: Backend (typecheck, lint, test)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Points at the Actions Postgres service container above. tests/testEnv.ts
+      # layers its own "test" schema on top of this at test time, so this is
+      # also what prisma migrate deploy applies migrations against directly.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/app
+      # Dev-only placeholder value, same pattern as .env.example. Never a real
+      # secret: nothing in CI reads or exposes this beyond signing test cookies.
+      BETTER_AUTH_SECRET: ci-only-secret-do-not-use-in-production-xx
+      BETTER_AUTH_URL: http://localhost:4000
+      FRONTEND_URL: http://localhost:5173
+      NODE_ENV: test
     steps:
-      - uses: actions/checkout@v4
-      - name: Placeholder success step
-        run: echo "CI placeholder - PERPRO-18 will replace this with the real pipeline"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
+
+  frontend:
+    name: Frontend (typecheck, lint, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck and build
+        # `build` runs `tsc -b && vite build`; there is no separate typecheck
+        # script for the frontend package, so this step covers both.
+        run: npm run build
