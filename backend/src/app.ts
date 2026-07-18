@@ -2,11 +2,14 @@ import cors from "cors";
 import express, { type Express } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import morgan from "morgan";
+import { pinoHttp } from "pino-http";
 
 import { toNodeHandler } from "better-auth/node";
+import * as Sentry from "@sentry/node";
+
 import { auth } from "./config/auth.js";
 import { env } from "./config/env.js";
+import { logger } from "./config/logger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
 import { apiRouter } from "./routes/index.js";
@@ -22,7 +25,7 @@ export function createApp(): Express {
       credentials: true,
     }),
   );
-  app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
+  app.use(pinoHttp({ logger }));
 
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -35,6 +38,14 @@ export function createApp(): Express {
   app.get("/health", (_req, res) => {
     res.status(200).json({ status: "ok" });
   });
+
+  // Manual verification route for the Sentry/Better Stack wiring (PERPRO-12).
+  // Not mounted in production so it can't be used to trigger 500s remotely.
+  if (env.NODE_ENV !== "production") {
+    app.get("/debug-sentry", (_req, _res) => {
+      throw new Error("Test error for Sentry/Better Stack integration");
+    });
+  }
 
   // Our own thin-controller auth routes (register/login/logout/forgot-password/
   // reset-password/me). These call auth.api.* directly with an already-parsed
@@ -55,6 +66,12 @@ export function createApp(): Express {
   app.use("/api", apiRouter);
 
   app.use(notFound);
+
+  // Must come after all routes/middleware that can throw, but before our
+  // own errorHandler, so Sentry captures the error and then hands off to
+  // errorHandler to actually shape the JSON response.
+  Sentry.setupExpressErrorHandler(app);
+
   app.use(errorHandler);
 
   return app;

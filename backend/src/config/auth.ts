@@ -5,6 +5,7 @@ import { bearer } from "better-auth/plugins";
 import { prisma } from "./db.js";
 import { env } from "./env.js";
 import { sendEmail } from "../services/email.js";
+import { logger } from "./logger.js";
 
 // Only register a social provider once BOTH its id and secret are set, so
 // the app boots fine in dev with no OAuth configured at all (see PERPRO-7 —
@@ -74,7 +75,7 @@ export const auth = betterAuth({
               data: { name: user.name ?? undefined, loginUrl: env.FRONTEND_URL },
             });
           } catch (err) {
-            console.error("[auth] failed to send welcome email:", err);
+            logger.error({ err }, "[auth] failed to send welcome email");
           }
         },
       },

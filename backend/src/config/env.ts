@@ -36,6 +36,9 @@ function loadEnv(): Env {
   const parsed = envSchema.safeParse(process.env);
 
   if (!parsed.success) {
+    // Deliberately console.error, not the Pino logger: the logger module
+    // itself imports this file's `env` export, so it cannot be used here
+    // without a circular dependency on the very env we failed to load.
     console.error("Invalid environment variables:", parsed.error.flatten().fieldErrors);
     throw new Error("Invalid environment variables");
   }

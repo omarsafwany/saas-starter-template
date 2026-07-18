@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { Resend } from "resend";
 
 import { env } from "../config/env.js";
+import { logger } from "../config/logger.js";
 import { ResetPasswordEmail } from "../emails/reset-password.js";
 import { VerifyEmail } from "../emails/verify-email.js";
 import { WelcomeEmail } from "../emails/welcome.js";
@@ -75,12 +76,13 @@ export async function sendEmail<T extends EmailTemplate>({
   const { subject, element } = buildEmail(template, data);
 
   if (!resend) {
-    const preview =
+    const url =
       "url" in data && typeof (data as { url?: string }).url === "string"
-        ? ` — ${(data as { url: string }).url}`
-        : "";
-    console.log(
-      `[email] RESEND_API_KEY not set; skipping real send. Would send "${subject}" (${template}) to ${to}${preview}`,
+        ? (data as { url: string }).url
+        : undefined;
+    logger.info(
+      { template, to, subject, url },
+      "RESEND_API_KEY not set; skipping real send",
     );
     return { sent: false, reason: "RESEND_API_KEY not configured" };
   }
