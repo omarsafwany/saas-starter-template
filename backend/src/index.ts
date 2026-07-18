@@ -1,9 +1,12 @@
 import "dotenv/config";
+import "./instrument.js";
+
 import { createApp } from "./app.js";
 import { env } from "./config/env.js";
+import { logger } from "./config/logger.js";
 
 const app = createApp();
 
 app.listen(env.PORT, () => {
-  console.log(`Backend listening on port ${env.PORT} (${env.NODE_ENV})`);
+  logger.info({ port: env.PORT, env: env.NODE_ENV }, "Backend listening");
 });
