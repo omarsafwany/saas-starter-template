@@ -13,13 +13,21 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Frontend code calls fetch("/api/...") so all backend calls are
-      // namespaced under /api. The backend itself does not use that
-      // prefix (e.g. GET /health), so strip it before forwarding.
+      // Frontend code calls fetch("/api/...") and the backend actually
+      // mounts its routers at that same /api prefix (see backend/src/app.ts:
+      // app.use("/api/auth", ...), app.use("/api", apiRouter)) - only the
+      // unauthenticated /health check lives outside /api. This is a
+      // same-prefix passthrough: /api/auth/login forwards unchanged to
+      // http://localhost:4000/api/auth/login.
       '/api': {
         target: 'http://localhost:4000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      // Unprefixed liveness check (backend/src/app.ts mounts it before
+      // auth/rate-limit middleware, outside the /api namespace).
+      '/health': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
       },
     },
   },

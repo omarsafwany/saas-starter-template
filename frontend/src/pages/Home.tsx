@@ -20,7 +20,7 @@ export function Home() {
   useEffect(() => {
     let cancelled = false
 
-    fetch('/api/health')
+    fetch('/health')
       .then(async (res) => {
         const text = await res.text()
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`)
@@ -63,7 +63,7 @@ export function Home() {
         <CardHeader>
           <CardTitle>Backend proxy check</CardTitle>
           <CardDescription>
-            fetch(&quot;/api/health&quot;) through the Vite dev server proxy to
+            fetch(&quot;/health&quot;) through the Vite dev server proxy to
             localhost:4000
           </CardDescription>
         </CardHeader>
