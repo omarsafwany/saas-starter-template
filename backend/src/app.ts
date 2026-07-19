@@ -14,6 +14,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
 import { apiRouter } from "./routes/index.js";
 import { authRouter } from "./routes/auth.js";
+import { paymentsWebhookRouter } from "./modules/payments/payments.routes.js";
 
 export function createApp(): Express {
   const app = express();
@@ -60,6 +61,16 @@ export function createApp(): Express {
   // docs). Mounted after our routes above so those win for the paths they
   // claim; this is the fallback for the rest of /api/auth/*.
   app.all("/api/auth/*splat", toNodeHandler(auth));
+
+  // Polar webhook receiver (PERPRO-10) - must be mounted with express.raw()
+  // ahead of the global express.json() below, exactly like the Better Auth
+  // handler above: this route needs the untouched raw body bytes to verify
+  // Polar's HMAC signature. See payments.controller.ts's webhook handler.
+  app.use(
+    "/api/payments",
+    express.raw({ type: "application/json" }),
+    paymentsWebhookRouter,
+  );
 
   app.use(express.json());
 
