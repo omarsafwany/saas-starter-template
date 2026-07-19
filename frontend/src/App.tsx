@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { Layout } from '@/components/layout/Layout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { GuestOnlyRoute } from '@/components/auth/GuestOnlyRoute'
 import { AuthProvider } from '@/context/AuthContext'
 import { Home } from '@/pages/Home'
 import { Login } from '@/pages/Login'
@@ -14,8 +15,22 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route
+              path="/login"
+              element={
+                <GuestOnlyRoute>
+                  <Login />
+                </GuestOnlyRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <GuestOnlyRoute>
+                  <Register />
+                </GuestOnlyRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={
