@@ -37,6 +37,16 @@ const envSchema = z.object({
   R2_ACCESS_KEY_ID: z.string().optional(),
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET_NAME: z.string().optional(),
+
+  // Payments (PERPRO-10) - optional. Without POLAR_ACCESS_TOKEN/PRODUCT_ID,
+  // services/payments.ts's functions throw a clear "not configured" AppError
+  // only when actually called (lazy, not at startup) - same pattern as R2.
+  // POLAR_WEBHOOK_SECRET is required to verify inbound webhook signatures.
+  POLAR_ACCESS_TOKEN: z.string().optional(),
+  POLAR_WEBHOOK_SECRET: z.string().optional(),
+  POLAR_SERVER: z.enum(["sandbox", "production"]).default("sandbox"),
+  POLAR_SUCCESS_URL: z.string().optional(),
+  POLAR_PRODUCT_ID: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

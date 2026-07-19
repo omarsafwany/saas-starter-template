@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { itemsRouter } from "../modules/items/items.routes.js";
+import { paymentsRouter } from "../modules/payments/payments.routes.js";
 
 /**
  * Aggregates all feature-module routers under /api.
@@ -10,3 +11,4 @@ import { itemsRouter } from "../modules/items/items.routes.js";
 export const apiRouter = Router();
 
 apiRouter.use("/items", itemsRouter);
+apiRouter.use("/payments", paymentsRouter);

@@ -25,6 +25,7 @@ model User {
   sessions Session[]
   accounts Account[]
   items    Item[]
+  subscriptions Subscription[]
 }
 
 model Session {
@@ -85,6 +86,27 @@ model Item {
   fileKey   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
+// Payments (PERPRO-10) - one row per Polar subscription, created/updated from
+// webhook events (subscription.active/canceled/etc). The checkout route does
+// not write here directly; Polar's webhook is the source of truth.
+model Subscription {
+  id                  String    @id @default(cuid())
+  polarSubscriptionId String    @unique
+  polarCustomerId     String
+  polarProductId      String
+  status              String
+  currentPeriodEnd    DateTime?
+  cancelAtPeriodEnd   Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
