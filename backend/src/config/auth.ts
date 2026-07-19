@@ -5,7 +5,7 @@ import { bearer } from "better-auth/plugins";
 import { prisma } from "./db.js";
 import { env } from "./env.js";
 import { sendEmail } from "../services/email.js";
-import { logger } from "./logger.js";
+import { enqueueWelcomeEmail } from "./jobs.js";
 
 // Only register a social provider once BOTH its id and secret are set, so
 // the app boots fine in dev with no OAuth configured at all (see PERPRO-7 —
@@ -66,17 +66,14 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          // Best-effort: a welcome email failing to send should never break
-          // signup, so this is intentionally swallowed (and logged).
-          try {
-            await sendEmail({
-              to: user.email,
-              template: "welcome",
-              data: { name: user.name ?? undefined, loginUrl: env.FRONTEND_URL },
-            });
-          } catch (err) {
-            logger.error({ err }, "[auth] failed to send welcome email");
-          }
+          // PERPRO-11: the welcome email is now a background job (pg-boss)
+          // instead of a synchronous send here. enqueueWelcomeEmail() is
+          // itself best-effort (it swallows its own errors), so this can
+          // never break signup - matching the guarantee this replaced.
+          await enqueueWelcomeEmail({
+            email: user.email,
+            name: user.name ?? undefined,
+          });
         },
       },
     },

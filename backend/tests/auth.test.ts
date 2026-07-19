@@ -10,9 +10,17 @@ vi.mock("../src/services/email.js", () => ({
   sendEmail: vi.fn().mockResolvedValue({ sent: false, reason: "mocked in tests" }),
 }));
 
+// PERPRO-11: the welcome email is enqueued as a pg-boss job rather than
+// sent directly from the registration hook - mock the enqueue function
+// itself rather than letting it touch a real (unstarted) PgBoss instance.
+vi.mock("../src/config/jobs.js", () => ({
+  enqueueWelcomeEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
 const { createApp } = await import("../src/app.js");
 const { resetDb } = await import("./resetDb.js");
 const { sendEmail } = await import("../src/services/email.js");
+const { enqueueWelcomeEmail } = await import("../src/config/jobs.js");
 
 const app = createApp();
 
@@ -23,6 +31,7 @@ function uniqueEmail(label: string): string {
 beforeEach(async () => {
   await resetDb();
   vi.mocked(sendEmail).mockClear();
+  vi.mocked(enqueueWelcomeEmail).mockClear();
 });
 
 describe("auth", () => {
@@ -36,11 +45,20 @@ describe("auth", () => {
     expect(res.status).toBe(200);
     expect(res.body.user.email).toBe(email);
 
-    // sendVerificationEmail (sendOnSignUp) + the welcome databaseHook both
-    // route through the service wrapper - never a real Resend client.
+    // sendVerificationEmail (sendOnSignUp) routes through the service
+    // wrapper - never a real Resend client.
     expect(vi.mocked(sendEmail)).toHaveBeenCalled();
     const templates = vi.mocked(sendEmail).mock.calls.map(([args]) => args.template);
-    expect(templates).toContain("welcome");
+    expect(templates).toContain("verify-email");
+
+    // PERPRO-11: the welcome email is no longer sent synchronously here -
+    // it's enqueued as a pg-boss job instead (see tests/jobs.test.ts for
+    // coverage of the job handler itself).
+    expect(templates).not.toContain("welcome");
+    expect(vi.mocked(enqueueWelcomeEmail)).toHaveBeenCalledWith({
+      email,
+      name: "Test User",
+    });
   });
 
   it("rejects registering the same email twice", async () => {
