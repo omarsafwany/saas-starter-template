@@ -14,6 +14,7 @@ export interface ItemsRepository {
   create(userId: string, data: CreateItemInput): Promise<Item>;
   update(id: string, data: UpdateItemInput): Promise<Item>;
   delete(id: string): Promise<void>;
+  attachFile(id: string, fileKey: string): Promise<Item>;
 }
 
 export const itemsRepository: ItemsRepository = {
@@ -38,5 +39,9 @@ export const itemsRepository: ItemsRepository = {
 
   async delete(id) {
     await prisma.item.delete({ where: { id } });
+  },
+
+  attachFile(id, fileKey) {
+    return prisma.item.update({ where: { id }, data: { fileKey } });
   },
 };

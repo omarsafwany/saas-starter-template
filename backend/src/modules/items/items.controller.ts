@@ -3,7 +3,12 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
 import * as itemsService from "./items.service.js";
-import { createItemSchema, updateItemSchema } from "./items.schema.js";
+import {
+  attachFileSchema,
+  createItemSchema,
+  requestUploadSchema,
+  updateItemSchema,
+} from "./items.schema.js";
 
 /**
  * requireAuth (mounted on the router below) has already populated
@@ -40,4 +45,25 @@ export const update = asyncHandler<{ id: string }>(async (req, res) => {
 export const remove = asyncHandler<{ id: string }>(async (req, res) => {
   await itemsService.deleteItem(currentUserId(req), req.params.id);
   res.status(204).send();
+});
+
+export const requestUploadUrl = asyncHandler<{ id: string }>(async (req, res) => {
+  const { contentType } = requestUploadSchema.parse(req.body);
+  const result = await itemsService.requestItemUploadUrl(
+    currentUserId(req),
+    req.params.id,
+    contentType,
+  );
+  res.status(200).json(result);
+});
+
+export const attachFile = asyncHandler<{ id: string }>(async (req, res) => {
+  const { key } = attachFileSchema.parse(req.body);
+  const item = await itemsService.attachItemFile(currentUserId(req), req.params.id, key);
+  res.status(200).json({ item });
+});
+
+export const getFileUrl = asyncHandler<{ id: string }>(async (req, res) => {
+  const url = await itemsService.getItemFileUrl(currentUserId(req), req.params.id);
+  res.status(200).json({ url });
 });
