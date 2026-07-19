@@ -16,3 +16,8 @@ itemsRouter.get("/:id", itemsController.getOne);
 itemsRouter.post("/", itemsController.create);
 itemsRouter.patch("/:id", itemsController.update);
 itemsRouter.delete("/:id", itemsController.remove);
+
+// PERPRO-9: presigned-upload file attachment flow.
+itemsRouter.post("/:id/upload-url", itemsController.requestUploadUrl);
+itemsRouter.post("/:id/file", itemsController.attachFile);
+itemsRouter.get("/:id/file", itemsController.getFileUrl);

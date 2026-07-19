@@ -28,6 +28,15 @@ const envSchema = z.object({
   // Observability (PERPRO-12) — optional. Without it, Sentry/Better Stack
   // reporting no-ops locally.
   BETTER_STACK_DSN: z.string().optional(),
+
+  // File storage (PERPRO-9) — optional. Without all four set, services/
+  // storage.ts's functions throw a clear "not configured" AppError only
+  // when actually called (lazy, not at startup) - nothing else in the app
+  // depends on R2 being present.
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET_NAME: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

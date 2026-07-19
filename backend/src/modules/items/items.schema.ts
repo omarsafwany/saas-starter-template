@@ -12,5 +12,19 @@ export const createItemSchema = z.object({
 
 export const updateItemSchema = createItemSchema.partial();
 
+// PERPRO-9: file attachment flow. requestUploadSchema is the body for
+// "give me a presigned PUT URL"; attachFileSchema is the body for "I
+// finished the PUT, save this key on the item" once the client's upload
+// to R2 succeeds.
+export const requestUploadSchema = z.object({
+  contentType: z.string().trim().min(1, "contentType is required"),
+});
+
+export const attachFileSchema = z.object({
+  key: z.string().trim().min(1, "key is required"),
+});
+
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
+export type RequestUploadInput = z.infer<typeof requestUploadSchema>;
+export type AttachFileInput = z.infer<typeof attachFileSchema>;

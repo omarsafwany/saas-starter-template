@@ -80,6 +80,9 @@ model Item {
   id        String   @id @default(cuid())
   title     String
   body      String?
+  // R2 object key for an attached file (PERPRO-9). Null until a client
+  // completes the presigned-upload flow and confirms via POST /:id/file.
+  fileKey   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
