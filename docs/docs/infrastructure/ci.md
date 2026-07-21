@@ -6,8 +6,8 @@ sidebar_position: 1
 
 ## What it is
 
-A single workflow (`.github/workflows/ci.yml`) with two parallel jobs — `backend` and
-`frontend` — that both run on every push and pull request against `main`. There's no separate
+A single workflow (`.github/workflows/ci.yml`) with three parallel jobs — `backend`,
+`frontend`, and `docs` — that all run on every push and pull request against `main`. There's no separate
 deploy job; the current phase is "build and merge," not "deploy" (see
 [Deployment & Analytics](/infrastructure/deployment-and-analytics)).
 
@@ -87,8 +87,34 @@ live database and is currently a local/manual step (`npm run test:e2e`), not wir
 it as a third job (with the same Postgres service pattern as `backend`) is a natural next step
 once E2E run time/flakiness has been tuned for CI.
 
+## The docs job
+
+```yaml
+docs:
+  name: Docs (build)
+  runs-on: ubuntu-latest
+  defaults:
+    run:
+      working-directory: docs
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: npm
+        cache-dependency-path: docs/package-lock.json
+    - run: npm ci
+    - run: npm run build
+```
+
+The simplest of the three jobs — this is the Docusaurus site you're reading right now. A broken
+internal link would fail this job outright, since `docusaurus.config.ts` sets
+`onBrokenLinks: "throw"`. There's no deploy step here either, for the same reason as the other
+two jobs — see [Deployment & Analytics](/infrastructure/deployment-and-analytics).
+
 ## Extending CI
 
 Add steps to the relevant job for a new check (an additional lint rule, a new test file — nothing
-extra to wire up, both jobs already run the project's full `test`/`lint`/`build` scripts). Add a
-new job, mirroring the `services: postgres:` block, if a new job needs its own service dependency.
+extra to wire up, all three jobs already run the project's full `test`/`lint`/`build` scripts).
+Add a new job, mirroring the `services: postgres:` block, if a new job needs its own service
+dependency.
