@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { Seo } from '@/components/seo/Seo'
 import {
   Card,
   CardContent,
@@ -45,6 +46,12 @@ export function Login() {
 
   return (
     <div className="mx-auto flex max-w-sm flex-1 items-center py-16">
+        <Seo
+          title="Log in"
+          description="Log in to your saas-starter-template account."
+          path="/login"
+          noindex
+        />
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Log in</CardTitle>

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { Seo } from '@/components/seo/Seo'
 import {
   Card,
   CardContent,
@@ -45,6 +46,12 @@ export function Register() {
 
   return (
     <div className="mx-auto flex max-w-sm flex-1 items-center py-16">
+        <Seo
+          title="Create account"
+          description="Create a saas-starter-template account."
+          path="/register"
+          noindex
+        />
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Create an account</CardTitle>

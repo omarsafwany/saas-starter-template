@@ -4,11 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/generate-seo-files.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/generate-seo-files.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "generate:seo": "node scripts/generate-seo-files.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
