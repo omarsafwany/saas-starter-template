@@ -1,0 +1,13 @@
+# saas-starter-template
+
+> A reusable, batteries-included starter for indie hackers: an Express + Prisma backend and a React + Vite frontend, with auth, payments, background jobs, file storage, email, and observability already wired together, so a new idea can ship in days instead of weeks.
+
+## Public pages
+
+- [http://localhost:5173/](http://localhost:5173/)
+
+## Notes for crawlers
+
+Everything else on this domain requires authentication and is application
+functionality, not published content. It is intentionally excluded from
+this file and from sitemap.xml, and disallowed in robots.txt.
