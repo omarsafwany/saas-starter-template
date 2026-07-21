@@ -95,9 +95,9 @@ export function Dashboard() {
   return (
     <div className="flex flex-1 flex-col gap-6 py-8">
       <div className="flex items-center justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Signed in as {user?.email}</p>
+          <p className="text-sm text-muted-foreground break-words">Signed in as {user?.email}</p>
         </div>
         <Button onClick={handleOpenCreate}>New item</Button>
       </div>
@@ -136,10 +136,10 @@ export function Dashboard() {
                   key={item.id}
                   className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="flex flex-col gap-1">
-                    <span className="font-medium">{item.title}</span>
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="font-medium break-words">{item.title}</span>
                     {item.body && (
-                      <span className="text-sm text-muted-foreground">{item.body}</span>
+                      <span className="text-sm text-muted-foreground break-words">{item.body}</span>
                     )}
                   </div>
                   <div className="flex shrink-0 gap-2">

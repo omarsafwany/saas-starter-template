@@ -6,6 +6,14 @@ interface LayoutProps {
   children: ReactNode
 }
 
+// Nav pattern: a single top-bar with inline links, no hamburger/drawer.
+// Deliberate choice for this template: there are only 2-3 nav items even
+// when authenticated (Dashboard, email, Log out), and the email is already
+// hidden below the `sm` breakpoint (see `hidden sm:inline` below), so the
+// bar never overflows down to 375px viewports. If real apps built on this
+// template grow their nav past ~4 items, swap this for a collapsible
+// drawer (e.g. shadcn Sheet) rather than letting the bar wrap or scroll.
+// See PERPRO-23 for the mobile-responsive audit that confirmed this holds.
 export function Layout({ children }: LayoutProps) {
   const { status, user, logout } = useAuth()
 
