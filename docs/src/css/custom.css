@@ -1,0 +1,113 @@
+/**
+ * Custom theme (PERPRO-21): a clean, modern look in the spirit of
+ * Stripe/Polar/Creem docs, replacing Infima's default purple/blue theme.
+ * Everything here overrides Infima CSS variables - see
+ * https://docusaurus.io/docs/styling-layout for the full variable list.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --ifm-font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ifm-font-family-monospace: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* Indigo accent, close to Stripe/Polar's violet-blue. */
+  --ifm-color-primary: #4f46e5;
+  --ifm-color-primary-dark: #3f37d0;
+  --ifm-color-primary-darker: #372fc4;
+  --ifm-color-primary-darkest: #2d27a1;
+  --ifm-color-primary-light: #6a63e9;
+  --ifm-color-primary-lighter: #7a73eb;
+  --ifm-color-primary-lightest: #a09af1;
+
+  --ifm-background-color: #ffffff;
+  --ifm-navbar-background-color: #ffffff;
+  --ifm-navbar-shadow: 0 1px 0 0 rgba(15, 23, 42, 0.06);
+  --ifm-toc-border-color: rgba(15, 23, 42, 0.08);
+  --ifm-table-border-color: rgba(15, 23, 42, 0.1);
+
+  --ifm-heading-font-weight: 600;
+  --ifm-font-weight-semibold: 600;
+  --ifm-line-height-base: 1.65;
+
+  --ifm-code-font-size: 0.85em;
+  --ifm-code-border-radius: 8px;
+  --ifm-code-background: #f4f4f8;
+
+  --ifm-global-radius: 10px;
+  --ifm-pre-border-radius: 12px;
+  --ifm-alert-border-radius: 10px;
+
+  --ifm-menu-color-background-active: rgba(79, 70, 229, 0.08);
+  --ifm-menu-color-background-hover: rgba(15, 23, 42, 0.04);
+
+  --docusaurus-highlighted-code-line-bg: rgba(79, 70, 229, 0.1);
+}
+
+[data-theme="dark"] {
+  --ifm-color-primary: #818cf8;
+  --ifm-color-primary-dark: #6b76f5;
+  --ifm-color-primary-darker: #5a66f3;
+  --ifm-color-primary-darkest: #333fe0;
+  --ifm-color-primary-light: #97a1f9;
+  --ifm-color-primary-lighter: #a3adfa;
+  --ifm-color-primary-lightest: #c7ccfc;
+
+  --ifm-background-color: #0b0e17;
+  --ifm-navbar-background-color: #0f1320;
+  --ifm-navbar-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --ifm-toc-border-color: rgba(255, 255, 255, 0.08);
+  --ifm-table-border-color: rgba(255, 255, 255, 0.1);
+  --ifm-code-background: #161a29;
+  --ifm-menu-color-background-active: rgba(129, 140, 248, 0.16);
+  --ifm-menu-color-background-hover: rgba(255, 255, 255, 0.04);
+
+  --docusaurus-highlighted-code-line-bg: rgba(129, 140, 248, 0.18);
+}
+
+/* Tighter, calmer navbar - closer to a SaaS marketing/docs site than the
+   default Docusaurus chrome. */
+.navbar {
+  backdrop-filter: saturate(180%) blur(8px);
+}
+.navbar__title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Code blocks: subtle border instead of a hard drop shadow, monospace at a
+   slightly smaller size so snippets feel dense/technical like Stripe's. */
+div[class^="codeBlockContainer"] {
+  border: 1px solid var(--ifm-toc-border-color);
+  box-shadow: none;
+}
+
+/* Sidebar: remove the default bold-everything look, only bold the active
+   item, and tighten vertical rhythm. */
+.theme-doc-sidebar-menu .menu__link {
+  font-weight: 400;
+  border-radius: 8px;
+}
+.theme-doc-sidebar-menu .menu__link--active {
+  font-weight: 600;
+}
+.menu__list-item-collapsible {
+  border-radius: 8px;
+}
+
+/* Headings: tighter letter-spacing for a more "product docs" feel. */
+article h1,
+article h2,
+article h3 {
+  letter-spacing: -0.015em;
+}
+
+/* Admonitions: match the rounded, low-contrast style used elsewhere. */
+.alert {
+  border-width: 1px;
+}
+
+/* Search bar: rounder, quieter, matches the rest of the chrome. */
+.navbar__search-input {
+  border-radius: 8px;
+}
